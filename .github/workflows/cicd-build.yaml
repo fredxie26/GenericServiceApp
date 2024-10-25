@@ -2,9 +2,9 @@ name: Android CICD build
 
 on:
   push:
-    branches: [ cicd-fred ]
+    branches: [ main ]
   pull_request:
-    branches: [ cicd-fred ]
+    branches: [ main ]
 
 jobs:
   unit-test:
