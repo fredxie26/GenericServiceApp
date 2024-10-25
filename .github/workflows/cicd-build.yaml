@@ -31,6 +31,10 @@ jobs:
         with:
           node-version: '20'
 
+      # Add executable permissions to gradlew
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       - name: Download dependencies
         run: ./gradlew dependencies
 
