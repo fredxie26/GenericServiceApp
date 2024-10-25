@@ -1,4 +1,5 @@
 package com.example.myapplication;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import android.content.Intent;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class HomeActivity extends AppCompatActivity {
-    TextView tvX, tvY, tvZ;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
     String mCurrentPhotoPath;
@@ -31,7 +31,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
-        if (photos.size() == 0) {
+        if (photos.isEmpty()) {
             displayPhoto(null);
         } else {
             displayPhoto(photos.get(index));
@@ -48,7 +48,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         // Continue only if the File was successfully created
         if (photoFile != null) {
-            Uri photoURI = FileProvider.getUriForFile(this, "com.example.photogallery.fileprovider", photoFile);
+            Uri photoURI = FileProvider.getUriForFile(this, "com.example.myapplication.fileprovider", photoFile);
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             //}
@@ -56,6 +56,7 @@ public class HomeActivity extends AppCompatActivity {
     }
     public void scrollPhotos(View v) {
         updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
+
         if (v.getId() == R.id.btnPrev) {
             if (index > 0) {
                 index--;
@@ -65,14 +66,16 @@ public class HomeActivity extends AppCompatActivity {
                 index++;
             }
         }
+
         displayPhoto(photos.get(index));
     }
+
 
     private void displayPhoto(String path) {
         ImageView iv = (ImageView) findViewById(R.id.ivGallery);
         TextView tv = (TextView) findViewById(R.id.tvTimestamp);
         EditText et = (EditText) findViewById(R.id.etCaption);
-        if (path == null || path =="") {
+        if (path == null || path.isEmpty()) {
             iv.setImageResource(R.mipmap.ic_launcher);
             et.setText("");
             tv.setText("");
@@ -114,7 +117,7 @@ public class HomeActivity extends AppCompatActivity {
                 photos = findPhotos(startTimestamp, endTimestamp, keywords);
 
                 // Display the first photo if available
-                if (photos.size() == 0) {
+                if (photos.isEmpty()) {
                     index = 0;  // Reset to the first photo
                     displayPhoto(null);
                 } else {
@@ -128,7 +131,7 @@ public class HomeActivity extends AppCompatActivity {
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
 
             // Display the first photo if available
-            if (photos.size() > 0) {
+            if (!photos.isEmpty()) {
                 index = 0;  // Reset to the first photo
                 displayPhoto(photos.get(index));
             } else {
@@ -147,7 +150,7 @@ public class HomeActivity extends AppCompatActivity {
     }
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords) {
         File file = new File(Environment.getExternalStorageDirectory()
-                .getAbsolutePath(), "/Android/data/com.example.photogallery/files/Pictures");
+                .getAbsolutePath(), "/Android/data/com.example.myapplication/files/Pictures");
         ArrayList<String> photos = new ArrayList<String>();
         File[] fList = file.listFiles();
         if (fList != null) {
