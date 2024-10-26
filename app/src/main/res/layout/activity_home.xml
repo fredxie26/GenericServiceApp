@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
 
+    <ListView
+        android:id="@+id/simpleListView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:divider="@color/material_blue_grey_800"
+        android:dividerHeight="1dp" />
+
+    <!--
     <ImageView
         android:id="@+id/ivGallery"
         android:layout_width="356dp"
@@ -76,5 +84,5 @@
         android:layout_marginBottom="18dp"
         android:text="search"
         android:onClick="filter" />
-
+    -->
 </RelativeLayout>
