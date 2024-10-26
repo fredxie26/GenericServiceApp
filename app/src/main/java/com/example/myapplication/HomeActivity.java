@@ -19,8 +19,22 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+import android.widget.ArrayAdapter;import android.widget.ListView;
 public class HomeActivity extends AppCompatActivity {
+    // Array of strings...
+    ListView simpleList;
+    String clients[] = {"John", "Joe", "Jane", "Jessie"};
+
+    @Override   protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);      setContentView(R.layout.activity_home);
+        simpleList = (ListView)findViewById(R.id.simpleListView);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.activity_listview, R.id.textView, clients);
+        simpleList.setAdapter(arrayAdapter);
+    }
+    /*
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
     String mCurrentPhotoPath;
@@ -167,4 +181,6 @@ public class HomeActivity extends AppCompatActivity {
         Intent i = new Intent(HomeActivity.this, SearchActivity.class);
         startActivityForResult(i, SEARCH_ACTIVITY_REQUEST_CODE);
     };
+
+     */
 }
