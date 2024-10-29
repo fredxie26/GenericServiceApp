@@ -38,5 +38,8 @@ jobs:
       - name: Download dependencies
         run: ./gradlew dependencies
 
+      - name: Run lint check
+        run: ./gradlew lint
+
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
