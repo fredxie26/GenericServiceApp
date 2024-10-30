@@ -17,7 +17,9 @@ import org.json.JSONObject;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HomeActivity extends AppCompatActivity {
     private List<Person> originalPersonList;
@@ -64,12 +66,21 @@ public class HomeActivity extends AppCompatActivity {
             JSONArray jsonArray = new JSONArray(jsonString);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                // Parse status as a Set<String> from a comma-separated string
+                Set<String> statusSet = new HashSet<>();
+                String statusString = jsonObject.getString("status");
+                String[] statuses = statusString.split(",");
+                for (String status : statuses) {
+                    statusSet.add(status.trim().toLowerCase()); // Trim spaces if any
+                }
+
                 Person person = new Person(
                         jsonObject.getString("first_name"),
                         jsonObject.getString("last_name"),
                         jsonObject.getString("photo_path"),
                         jsonObject.getString("address"),
-                        jsonObject.getString("status")
+                        statusSet
                 );
                 originalPersonList.add(person);
             }

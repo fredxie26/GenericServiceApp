@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.example.myapplication.helper.Person;
 
 import java.util.List;
+import java.util.Set;
 
 public class PersonAdapter extends BaseAdapter {
     private List<Person> personList;
@@ -96,7 +97,7 @@ public class PersonAdapter extends BaseAdapter {
     private void addCheckboxes(LinearLayout layout, Person person, TextView personTextView) {
         layout.removeAllViews(); // Clear previous checkboxes if any
 
-        boolean[] checkedStates = getCheckedStates(person.getStatus());
+        boolean[] checkedStates = getCheckedStates(person.getStatuses());
         for (int i = 0; i < checkboxOptions.length; i++) {
             layout.addView(createCheckbox(checkboxOptions[i], checkedStates[i], person, personTextView));
         }
@@ -109,12 +110,13 @@ public class PersonAdapter extends BaseAdapter {
         checkBox.setChecked(isChecked);
 
         checkBox.setOnCheckedChangeListener((buttonView, isChecked1) -> {
+            String message = isChecked1 ? option + " selected" : option + " deselected";
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+
             if (isChecked1) {
-                person.setStatus(option); // Update the person's status
-                Toast.makeText(context, option + " selected", Toast.LENGTH_SHORT).show();
+                person.addStatus(option);
             } else {
-                person.setStatus(""); // Clear the status if unchecked
-                Toast.makeText(context, option + " deselected", Toast.LENGTH_SHORT).show();
+                person.removeStatus(option);
             }
             personTextView.setText(person.getFullInfo());
         });
@@ -123,20 +125,13 @@ public class PersonAdapter extends BaseAdapter {
     }
 
     // Determine which checkboxes should be checked based on the status
-    private boolean[] getCheckedStates(String status) {
+    private boolean[] getCheckedStates(Set<String> statuses) {
         boolean[] checkedStates = new boolean[checkboxOptions.length];
 
-        switch (status.toLowerCase()) {
-            case "active":
-                checkedStates[0] = true; // Check "completed"
-                break;
-            case "inactive":
-                checkedStates[1] = true; // Check "refused"
-                break;
-            default:
-                // No check if status does not match
-                break;
+        for (int i = 0; i < checkboxOptions.length; i++) {
+            checkedStates[i] = statuses.contains(checkboxOptions[i]);
         }
+
         return checkedStates;
     }
 }
