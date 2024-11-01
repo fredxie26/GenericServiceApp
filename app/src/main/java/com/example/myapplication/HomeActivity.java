@@ -36,13 +36,13 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void run() {
                 WebAccess webAccess = new WebAccess("http://10.0.2.2:8081/MyWebApp/data.json");
-                List<Person> personList = webAccess.fetchAndParseJson();
+                originalPersonList = webAccess.fetchAndParseJson();
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         // Update UI with the result
-                        personAdapter = new PersonAdapter(HomeActivity.this, personList);
+                        personAdapter = new PersonAdapter(HomeActivity.this, originalPersonList);
                         personListView.setAdapter(personAdapter);
                     }
                 });
