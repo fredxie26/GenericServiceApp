@@ -18,6 +18,11 @@ public class Person {
         this.statuses = statuses;
     }
 
+    // Accessor for photoPath
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
     public String getFullInfo() {
         return "Name: " + firstName + " " + lastName + "\n" +
                 "Address: " + address + "\n" +

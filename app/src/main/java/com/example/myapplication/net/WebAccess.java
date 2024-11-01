@@ -1,96 +1,172 @@
 package com.example.myapplication.net;
 
-import android.util.Log;
-
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import android.os.Environment;
+import android.util.Log;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import com.example.myapplication.helper.Person;
+
 
 public class WebAccess {
     String url;
+
     public WebAccess(String url) {
         this.url = url;
     }
-    public String uploadPhoto(File file) {
-        try {
-            URL url = new URL("http://" + this.url);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-            String boundary = "===" + System.currentTimeMillis() + "===";
-            String lineFeed = "\r\n";
-            conn.setRequestProperty("Connection", "Keep-Alive");
-            conn.setRequestProperty("Cache-Control", "no-cache");
-            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-            DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-            os.writeBytes("--" + boundary + lineFeed);
-            os.writeBytes( "Content-Disposition: form-data; name=\"" + "File"
-                    + "\"; fileName=\"" + file.getName() + "\""+lineFeed);
-            os.writeBytes(
-                    "Content-Type: "
-                            + URLConnection.guessContentTypeFromName(file.getName())+lineFeed);
-            os.writeBytes("Content-Transfer-Encoding: binary" + lineFeed);
-            os.writeBytes(lineFeed);
-            FileInputStream inputStream = new FileInputStream(file);
-            byte[] buffer = new byte[4096];
-            int bytesRead = -1;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                os.write(buffer, 0, bytesRead);
+
+    public List<Person> fetchAndParseJson() {
+        String jsonString = fetchJsonFromUrl(this.url); // Use the instance variable here
+        if (jsonString != null) {
+            try {
+                return parseJson(jsonString);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-            inputStream.close();
-            os.writeBytes(lineFeed);
-            os.writeBytes(lineFeed);
-            os.writeBytes("--" + boundary + "--" + lineFeed);
-            os.flush();
-            os.close();
-            String response = null;
-            int status = conn.getResponseCode();
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    conn.getInputStream()));
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                response += line;
-            }
-            br.close();
-            conn.disconnect();
-            return response;
-        } catch (Exception e) {
-            Log.e("Web Access:", e.getMessage());
-            return e.getMessage();
         }
+        return new ArrayList<>(); // Return an empty list if fetching or parsing fails
     }
-    public String[] listAllPhotos() {
+
+    private String fetchJsonFromUrl(String urlString) {
+        StringBuilder response = new StringBuilder();
         HttpURLConnection conn = null;
         BufferedReader reader = null;
+
         try {
-            URL url = new URL("http://" + this.url);
+            URL url = new URL(urlString);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.connect();
-            InputStream inputStream = conn.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-            String response = null, line = null;
-            while ((line = br.readLine()) != null) {
-                response += line;
-            }
-            br.close();
-            conn.disconnect();
-            if (response != null && response.length() > 0) {
-                return response.split(",");
+
+            int status = conn.getResponseCode();
+            if (status == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = conn.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                Log.d("Web Access:", "Response: " + response.toString()); // Log the response
+            } else {
+                Log.e("Web Access:", "Error fetching data, response code: " + status);
+                InputStream errorStream = conn.getErrorStream();
+                if (errorStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(errorStream));
+                    StringBuilder errorResponse = new StringBuilder();
+                    String errorLine;
+                    while ((errorLine = reader.readLine()) != null) {
+                        errorResponse.append(errorLine);
+                    }
+                    Log.e("Web Access:", "Error response: " + errorResponse.toString());
+                }
             }
         } catch (Exception e) {
-            Log.e("Web Access:", e.getMessage());
+            Log.e("Web Access:", "Exception: " + e.getMessage(), e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (Exception e) {
+                    Log.e("Web Access:", "Error closing reader", e);
+                }
+            }
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
-        return null;
+        return response.toString();
+    }
+
+
+
+    public List<Person> parseJson(String jsonString) throws JSONException {
+        List<Person> personList = new ArrayList<>();
+
+        // Parse the JSON object
+        Log.d("Web Access:", "Received JSON: " + jsonString);
+        jsonString = jsonString.trim();
+
+        JSONObject jsonObject = new JSONObject(jsonString);
+        JSONArray jsonArray = jsonObject.getJSONArray("persons"); // Access the "persons" array
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject personObject = jsonArray.getJSONObject(i);
+
+            // Extract data using the correct keys
+            String firstName = personObject.getString("firstName");
+            String lastName = personObject.getString("lastName");
+            String photoPath = personObject.getString("photo");
+            String address = personObject.getString("address");
+
+            // Download the image and update the photoPath
+            String localPhotoPath = downloadImage("http://10.0.2.2:8081/MyWebApp/" + photoPath);
+
+            // Create a set for statuses
+            Set<String> statusSet = new HashSet<>();
+            JSONArray statusesArray = personObject.getJSONArray("statuses"); // Get the statuses array
+            for (int j = 0; j < statusesArray.length(); j++) {
+                String status = statusesArray.getString(j);
+                statusSet.add(status.trim().toLowerCase()); // Add each status to the set
+            }
+
+            // Create a Person object and add it to the list
+            Person person = new Person(firstName, lastName, localPhotoPath, address, statusSet); // Use localPhotoPath here
+            personList.add(person);
+        }
+
+        return personList;
+    }
+
+    public String downloadImage(String imageUrl) {
+        InputStream input = null;
+        FileOutputStream output = null;
+        String localFilePath = null; // Initialize local file path
+        try {
+            // Create the URL object
+            URL url = new URL(imageUrl);
+            input = new BufferedInputStream(url.openStream());
+
+            // Create a directory to save images
+            File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MyAppImages");
+            if (!directory.exists()) {
+                directory.mkdirs(); // Create directory if it doesn't exist
+            }
+
+            // Create the output file
+            File imageFile = new File(directory, imageUrl.substring(imageUrl.lastIndexOf('/') + 1));
+            output = new FileOutputStream(imageFile);
+            localFilePath = imageFile.getAbsolutePath(); // Update local file path
+
+            // Download the image and save it
+            byte[] data = new byte[1024];
+            int count;
+            while ((count = input.read(data)) != -1) {
+                output.write(data, 0, count);
+            }
+
+            Log.d("Web Access:", "Image downloaded to: " + localFilePath);
+        } catch (Exception e) {
+            Log.e("Web Access:", "Error downloading image: " + e.getMessage());
+        } finally {
+            try {
+                if (output != null) output.close();
+                if (input != null) input.close();
+            } catch (Exception e) {
+                Log.e("Web Access:", "Error closing streams: " + e.getMessage());
+            }
+        }
+        return localFilePath; // Return the local file path
     }
 }
-
-

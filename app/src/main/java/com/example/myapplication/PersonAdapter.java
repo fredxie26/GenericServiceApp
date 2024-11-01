@@ -22,7 +22,7 @@ import java.util.Set;
 public class PersonAdapter extends BaseAdapter {
     private List<Person> personList;
     private Context context;
-    private final String[] checkboxOptions = {"active", "inactive"};
+    private final String[] checkboxOptions = {"active", "inactive", "pending"};
 
     public PersonAdapter(Context context, List<Person> personList) {
         this.context = context;
@@ -64,9 +64,16 @@ public class PersonAdapter extends BaseAdapter {
 
         Person person = personList.get(position);
 
-        // Load the drawable resource as a Bitmap
-        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.cat); // Assuming cat.png is your image
-        holder.personImageView.setImageBitmap(bitmap);
+        // Load the image from the local path
+        String photoPath = person.getPhotoPath(); // Assuming this method returns the local file path
+        Bitmap bitmap = BitmapFactory.decodeFile(photoPath); // Load the image from the file
+
+        if (bitmap != null) {
+            holder.personImageView.setImageBitmap(bitmap); // Set the bitmap to the ImageView
+        } else {
+            // Optionally set a placeholder image if the bitmap is null
+            holder.personImageView.setImageResource(R.drawable.cat); // Replace with your placeholder image
+        }
 
         holder.personTextView.setText(person.getFullInfo());
 
@@ -75,6 +82,7 @@ public class PersonAdapter extends BaseAdapter {
 
         return convertView;
     }
+
 
     static class ViewHolder {
         ImageView personImageView;
