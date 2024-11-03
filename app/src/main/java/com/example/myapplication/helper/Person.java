@@ -4,13 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Person {
+    private int id;
     private String firstName;
     private String lastName;
     private String photoPath;
     private String address;
     private Set<String> statuses;
 
-    public Person(String firstName, String lastName, String photoPath, String address, Set<String> statuses) {
+    public Person(int id, String firstName, String lastName, String photoPath, String address, Set<String> statuses) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.photoPath = photoPath;
@@ -31,6 +33,10 @@ public class Person {
 
     public Set<String> getStatuses() {
         return statuses;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void addStatus(String status) {

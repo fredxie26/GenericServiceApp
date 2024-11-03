@@ -35,7 +35,7 @@ public class HomeActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                WebAccess webAccess = new WebAccess("http://10.0.2.2:8081/MyWebApp/data.json");
+                WebAccess webAccess = new WebAccess("http://10.0.2.2:8081/MyWebApp/api/data");
                 originalPersonList = webAccess.fetchAndParseJson();
 
                 runOnUiThread(new Runnable() {
