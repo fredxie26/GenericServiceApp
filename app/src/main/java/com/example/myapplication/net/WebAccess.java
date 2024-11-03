@@ -98,13 +98,13 @@ public class WebAccess {
         Log.d("Web Access:", "Received JSON: " + jsonString);
         jsonString = jsonString.trim();
 
-        JSONObject jsonObject = new JSONObject(jsonString);
-        JSONArray jsonArray = jsonObject.getJSONArray("persons"); // Access the "persons" array
+        JSONArray jsonArray = new JSONArray(jsonString);
 
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject personObject = jsonArray.getJSONObject(i);
 
             // Extract data using the correct keys
+            int id = personObject.getInt("id");
             String firstName = personObject.getString("firstName");
             String lastName = personObject.getString("lastName");
             String photoPath = personObject.getString("photo");
@@ -122,7 +122,7 @@ public class WebAccess {
             }
 
             // Create a Person object and add it to the list
-            Person person = new Person(firstName, lastName, localPhotoPath, address, statusSet); // Use localPhotoPath here
+            Person person = new Person(id, firstName, lastName, localPhotoPath, address, statusSet);
             personList.add(person);
         }
 
@@ -169,4 +169,5 @@ public class WebAccess {
         }
         return localFilePath; // Return the local file path
     }
+    
 }
