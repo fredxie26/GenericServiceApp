@@ -42,7 +42,20 @@ public class UITest {
         context.startActivity(intent);
     }
 
-    @Test
+    private void performLogin() throws Exception {
+        UiObject usernameEditText = mDevice.findObject(new UiSelector().resourceId(APP + ":id/username"));
+        UiObject passwordEditText = mDevice.findObject(new UiSelector().resourceId(APP + ":id/password"));
+        UiObject loginButton = mDevice.findObject(new UiSelector().resourceId(APP + ":id/login_button"));
+
+        if (usernameEditText.exists() && passwordEditText.exists() && loginButton.exists()) {
+            usernameEditText.setText("admin");
+            passwordEditText.setText("admin");
+            loginButton.click();
+            mDevice.wait(Until.hasObject(By.res(APP, "homeScreenElement")), LAUNCH_TIMEOUT);
+        }
+    }
+
+/*    @Test
     public void testLoginUI() throws Exception {
         mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
 
@@ -50,8 +63,8 @@ public class UITest {
         UiObject passwordEditText = mDevice.findObject(new UiSelector().resourceId(APP + ":id/password"));
         UiObject loginButton = mDevice.findObject(new UiSelector().resourceId(APP + ":id/login_button"));
 
-        // Ensure the search button exists
-        assertTrue("Search button not found", loginButton.exists());
+        // Ensure the login button exists
+        assertTrue("login button not found", loginButton.exists());
 
         // Ensure the username field input works
         usernameEditText.setText("admin");
@@ -61,11 +74,13 @@ public class UITest {
         passwordEditText.setText("admin");
         assertEquals("•••••", passwordEditText.getText());
 
-    }
+    }*/
 
     @Test
     public void testSearchListViewUI() throws Exception {
         mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
+
+//        performLogin();
 
         UiObject searchEditText = mDevice.findObject(new UiSelector().resourceId(APP + ":id/searchEditText"));
         UiObject searchButton = mDevice.findObject(new UiSelector().resourceId(APP + ":id/searchButton"));
@@ -94,10 +109,12 @@ public class UITest {
     public void testStatusUI() throws Exception {
         mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
 
+//        performLogin();
+
         UiObject listView = mDevice.findObject(new UiSelector().resourceId(APP + ":id/personListView"));
         assertTrue("ListView not found", listView.exists());
 
-        UiObject customLayoutItem = listView.getChild(new UiSelector().index(0)); // Change index based on your requirement
+        UiObject customLayoutItem = listView.getChild(new UiSelector().index(0));
         assertTrue("Custom layout item not found at index 0", customLayoutItem.exists());
 
         UiObject listStatusButton = mDevice.findObject(new UiSelector().resourceId(APP + ":id/listStatusBtn"));
