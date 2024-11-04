@@ -6,9 +6,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Button;
+import android.widget.RadioGroup;
+
 import com.example.myapplication.helper.Person;
 import com.example.myapplication.net.WebAccess;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
@@ -19,6 +23,7 @@ public class HomeActivity extends AppCompatActivity {
     private Button searchButton;
     private ListView personListView;
     private WebAccess webAccess;
+    private RadioGroup sortRadioGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +33,7 @@ public class HomeActivity extends AppCompatActivity {
         searchEditText = findViewById(R.id.searchEditText);
         searchButton = findViewById(R.id.searchButton);
         personListView = findViewById(R.id.personListView);
+        sortRadioGroup = findViewById(R.id.sortRadioGroup);
 
         originalPersonList = new ArrayList<>();
         filteredPersonList = new ArrayList<>();
@@ -39,6 +45,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void run() {
                 originalPersonList = webAccess.fetchAndParseJson();
+                filteredPersonList.addAll(originalPersonList);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -58,6 +65,8 @@ public class HomeActivity extends AppCompatActivity {
                 filterList();
             }
         });
+
+        sortRadioGroup.setOnCheckedChangeListener((group, checkedId) -> sortPersonList(checkedId));
     }
 
     private void filterList() {
@@ -78,5 +87,29 @@ public class HomeActivity extends AppCompatActivity {
             personAdapter = new PersonAdapter(this, originalPersonList, webAccess); // Pass webAccess here
         }
         personListView.setAdapter(personAdapter);
+    }
+
+    private void sortPersonList(int checkedId) {
+        Comparator<Person> comparator = null;
+
+        if (checkedId == R.id.sortByFirstName) {
+            comparator = Comparator.comparing(Person::getFirstName);
+        } else if (checkedId == R.id.sortByLastName) {
+            comparator = Comparator.comparing(Person::getLastName);
+        } else if (checkedId == R.id.sortByAddress) {
+            comparator = Comparator.comparing(person -> getUnitNum(person.getAddress()));
+        }
+
+        if (comparator != null) {
+            Collections.sort(filteredPersonList, comparator);
+            personAdapter = new PersonAdapter(this, filteredPersonList, webAccess);
+            personListView.setAdapter(personAdapter);
+        }
+    }
+
+    public String getUnitNum(String input) {
+        // Split the input string by whitespace
+        String[] parts = input.split("\\s+");
+        return parts.length > 0 ? parts[0] : "";
     }
 }
