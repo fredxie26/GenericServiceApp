@@ -18,6 +18,7 @@ public class HomeActivity extends AppCompatActivity {
     private EditText searchEditText;
     private Button searchButton;
     private ListView personListView;
+    private WebAccess webAccess;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,27 +32,24 @@ public class HomeActivity extends AppCompatActivity {
         originalPersonList = new ArrayList<>();
         filteredPersonList = new ArrayList<>();
 
+        webAccess = new WebAccess("http://10.0.2.2:8081/MyWebApp/");
+
         // Instantiate WebAccess and fetch JSON data
         new Thread(new Runnable() {
             @Override
             public void run() {
-                WebAccess webAccess = new WebAccess("http://10.0.2.2:8081/MyWebApp/data.json");
                 originalPersonList = webAccess.fetchAndParseJson();
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         // Update UI with the result
-                        personAdapter = new PersonAdapter(HomeActivity.this, originalPersonList);
+                        personAdapter = new PersonAdapter(HomeActivity.this, originalPersonList, webAccess);
                         personListView.setAdapter(personAdapter);
                     }
                 });
             }
         }).start();
-
-        // Set up the adapter
-        personAdapter = new PersonAdapter(this, originalPersonList);
-        personListView.setAdapter(personAdapter);
 
         // Set up search button click listener
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -73,11 +71,11 @@ public class HomeActivity extends AppCompatActivity {
                     filteredPersonList.add(person);
                 }
             }
-            personAdapter = new PersonAdapter(this, filteredPersonList);
+            personAdapter = new PersonAdapter(this, filteredPersonList, webAccess); // Pass webAccess here
         } else {
             // Reset to original list if the query is empty
             filteredPersonList.addAll(originalPersonList);
-            personAdapter = new PersonAdapter(this, originalPersonList);
+            personAdapter = new PersonAdapter(this, originalPersonList, webAccess); // Pass webAccess here
         }
         personListView.setAdapter(personAdapter);
     }

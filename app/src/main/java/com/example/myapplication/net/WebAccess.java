@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.example.myapplication.helper.Person;
+import java.io.OutputStream;
 
 
 public class WebAccess {
@@ -98,20 +99,20 @@ public class WebAccess {
         Log.d("Web Access:", "Received JSON: " + jsonString);
         jsonString = jsonString.trim();
 
-        JSONObject jsonObject = new JSONObject(jsonString);
-        JSONArray jsonArray = jsonObject.getJSONArray("persons"); // Access the "persons" array
+        JSONArray jsonArray = new JSONArray(jsonString);
 
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject personObject = jsonArray.getJSONObject(i);
 
             // Extract data using the correct keys
+            int id = personObject.getInt("id");
             String firstName = personObject.getString("firstName");
             String lastName = personObject.getString("lastName");
             String photoPath = personObject.getString("photo");
             String address = personObject.getString("address");
 
             // Download the image and update the photoPath
-            String localPhotoPath = downloadImage("http://10.0.2.2:8081/MyWebApp/" + photoPath);
+            String localPhotoPath = downloadImage(url + "/" + photoPath);
 
             // Create a set for statuses
             Set<String> statusSet = new HashSet<>();
@@ -122,7 +123,7 @@ public class WebAccess {
             }
 
             // Create a Person object and add it to the list
-            Person person = new Person(firstName, lastName, localPhotoPath, address, statusSet); // Use localPhotoPath here
+            Person person = new Person(id, firstName, lastName, localPhotoPath, address, statusSet);
             personList.add(person);
         }
 
@@ -168,5 +169,39 @@ public class WebAccess {
             }
         }
         return localFilePath; // Return the local file path
+    }
+
+    public void sendJsonToServer(String jsonData) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection conn = null;
+                OutputStream os = null;
+                try {
+                    URL url = new URL(WebAccess.this.url); // Update with your URL
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setDoOutput(true); // Set to true to send a request body
+
+                    // Write the JSON data to the output stream
+                    os = conn.getOutputStream();
+                    os.write(jsonData.getBytes("UTF-8"));
+                    os.flush();
+
+                    int responseCode = conn.getResponseCode();
+                    Log.d("WebAccess", "Response Code: " + responseCode);
+                } catch (Exception e) {
+                    Log.e("WebAccess", "Error sending data: " + e.getMessage(), e);
+                } finally {
+                    try {
+                        if (os != null) os.close();
+                        if (conn != null) conn.disconnect();
+                    } catch (Exception e) {
+                        Log.e("WebAccess", "Error closing resources: " + e.getMessage(), e);
+                    }
+                }
+            }
+        }).start(); // Start the thread
     }
 }
