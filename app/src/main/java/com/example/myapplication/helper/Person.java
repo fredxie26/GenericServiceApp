@@ -20,6 +20,17 @@ public class Person {
         this.statuses = statuses;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+    public String getAddress() {
+        return address;
+    }
+
     // Accessor for photoPath
     public String getPhotoPath() {
         return photoPath;
