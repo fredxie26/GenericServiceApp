@@ -13,8 +13,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
+import android.util.Log;
 
 import com.example.myapplication.helper.Person;
+import com.example.myapplication.net.WebAccess;
 
 import java.util.List;
 import java.util.Set;
@@ -22,11 +27,13 @@ import java.util.Set;
 public class PersonAdapter extends BaseAdapter {
     private List<Person> personList;
     private Context context;
+    private WebAccess webAccess;
     private final String[] checkboxOptions = {"active", "inactive", "pending"};
 
-    public PersonAdapter(Context context, List<Person> personList) {
+    public PersonAdapter(Context context, List<Person> personList, WebAccess webAccess) {
         this.context = context;
         this.personList = personList;
+        this.webAccess = webAccess;
     }
 
     @Override
@@ -127,6 +134,9 @@ public class PersonAdapter extends BaseAdapter {
                 person.removeStatus(option);
             }
             personTextView.setText(person.getFullInfo());
+
+            // Send updated JSON to the server
+            sendUpdatedJson();
         });
 
         return checkBox;
@@ -141,5 +151,31 @@ public class PersonAdapter extends BaseAdapter {
         }
 
         return checkedStates;
+    }
+
+    // Method to send the updated JSON to the server
+    private void sendUpdatedJson() {
+
+        // Build the JSON string from the personList
+        JSONArray jsonArray = new JSONArray();
+        for (Person p : personList) {
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("id", p.getId());
+                jsonObject.put("firstName", p.getFirstName());
+                jsonObject.put("lastName", p.getLastName());
+                jsonObject.put("photo", p.getPhotoPath());
+                jsonObject.put("address", p.getAddress());
+                jsonObject.put("statuses", new JSONArray(p.getStatuses())); // Convert Set to JSONArray
+                jsonArray.put(jsonObject);
+            } catch (JSONException e) {
+                Log.e("PersonAdapter", "Error creating JSON object: " + e.getMessage());
+            }
+        }
+
+        // Convert JSONArray to String
+        String jsonString = jsonArray.toString();
+        // Send JSON to the server
+        this.webAccess.sendJsonToServer(jsonString);
     }
 }
