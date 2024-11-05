@@ -31,4 +31,19 @@
         android:layout_marginStart="16dp"
         android:layout_gravity="center_vertical" />
 
+    <Button
+        android:id="@+id/detailStatusBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/detailAddress"
+        android:text="Status" />
+
+    <LinearLayout
+        android:id="@+id/detailCheckboxLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/detailStatusBtn"
+        android:visibility="gone" />
+
 </RelativeLayout>
