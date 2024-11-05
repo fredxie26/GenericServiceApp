@@ -9,13 +9,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Person implements Parcelable {
+
+    private int id;
     private String firstName;
     private String lastName;
     private String photoPath;
     private String address;
     private Set<String> statuses;
 
-    public Person(String firstName, String lastName, String photoPath, String address, Set<String> statuses) {
+    public Person(int id, String firstName, String lastName, String photoPath, String address, Set<String> statuses) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.photoPath = photoPath;
@@ -41,6 +44,21 @@ public class Person implements Parcelable {
             return new Person[size];
         }
     };
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+    public String getAddress() {
+        return address;
+    }
+
+    // Accessor for photoPath
+    public String getPhotoPath() {
+        return photoPath;
+    }
 
     public String getFullInfo() {
         return "Name: " + firstName + " " + lastName + "\n" +
@@ -52,12 +70,12 @@ public class Person implements Parcelable {
         return "Name: " + firstName + " " + lastName;
     }
 
-    public String getAddress() {
-        return "Address: " + address;
-    }
-
     public Set<String> getStatuses() {
         return statuses;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void addStatus(String status) {

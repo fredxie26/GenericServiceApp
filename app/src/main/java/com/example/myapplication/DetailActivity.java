@@ -41,10 +41,6 @@ public class DetailActivity extends Activity {
 
         changePerson(position);
 
-        // Load the drawable resource as a Bitmap
-        Bitmap bitmap = BitmapFactory.decodeResource(this.getBaseContext().getResources(), R.drawable.cat); // Assuming cat.png is your image
-        picture.setImageBitmap(bitmap);
-
         picture.setOnTouchListener(new OnSwipeTouchListener(DetailActivity.this) {
             public void onSwipeRight() {
                 if (position < data.size())
@@ -100,11 +96,22 @@ public class DetailActivity extends Activity {
 
     private void changePerson (int pos)
     {
-        //TODO Update picture as well
+        Person person = data.get(pos);
+
+        // Load the image from the local path
+        String photoPath = person.getPhotoPath(); // Assuming this method returns the local file path
+        Bitmap bitmap = BitmapFactory.decodeFile(photoPath); // Load the image from the file
+
+        if (bitmap != null) {
+            picture.setImageBitmap(bitmap); // Set the bitmap to the ImageView
+        } else {
+            // Optionally set a placeholder image if the bitmap is null
+            picture.setImageResource(R.drawable.cat); // Replace with your placeholder image
+        }
         name = findViewById(R.id.detailName);
         address = findViewById(R.id.detailAddress);
-        name.setText(data.get(pos).getName());
-        address.setText(data.get(pos).getAddress());
+        name.setText(person.getName());
+        address.setText(person.getAddress());
     }
 
 }

@@ -1,7 +1,6 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -9,21 +8,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
-
 import android.widget.ListView;
 import android.widget.Button;
+import android.widget.RadioGroup;
 
 import com.example.myapplication.helper.Person;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-
+import com.example.myapplication.net.WebAccess;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 public class HomeActivity extends AppCompatActivity {
     private List<Person> originalPersonList;
@@ -32,26 +26,41 @@ public class HomeActivity extends AppCompatActivity {
     private EditText searchEditText;
     private Button searchButton;
     private ListView personListView;
+    private WebAccess webAccess;
+    private RadioGroup sortRadioGroup;
 
-    String jsonData = "[{\"first_name\": \"Alice\", \"last_name\": \"Smith\", \"photo_path\": \"/path/to/alice.jpg\", \"address\": \"123 Maple St, New York\", \"status\": \"Active\"}," +
-            "{\"first_name\": \"Bob\", \"last_name\": \"Johnson\", \"photo_path\": \"/path/to/bob.jpg\", \"address\": \"456 Oak Ave, Los Angeles\", \"status\": \"Inactive\"}," +
-            "{\"first_name\": \"Charlie\", \"last_name\": \"Brown\", \"photo_path\": \"/path/to/charlie.jpg\", \"address\": \"789 Pine Rd, Chicago\", \"status\": \"Active\"}]";
-
-    @Override   protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
         searchEditText = findViewById(R.id.searchEditText);
         searchButton = findViewById(R.id.searchButton);
         personListView = findViewById(R.id.personListView);
+        sortRadioGroup = findViewById(R.id.sortRadioGroup);
 
         originalPersonList = new ArrayList<>();
         filteredPersonList = new ArrayList<>();
-        parseJson(jsonData);
 
-        // Set up the adapter
-        personAdapter = new PersonAdapter(this, originalPersonList);
-        personListView.setAdapter(personAdapter);
+        webAccess = new WebAccess("http://10.0.2.2:8081/MyWebApp/");
+
+        // Instantiate WebAccess and fetch JSON data
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                originalPersonList = webAccess.fetchAndParseJson();
+                filteredPersonList.addAll(originalPersonList);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Update UI with the result
+                        personAdapter = new PersonAdapter(HomeActivity.this, originalPersonList, webAccess);
+                        personListView.setAdapter(personAdapter);
+                    }
+                });
+            }
+        }).start();
 
         // Set up search button click listener
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +69,8 @@ public class HomeActivity extends AppCompatActivity {
                 filterList();
             }
         });
+
+        sortRadioGroup.setOnCheckedChangeListener((group, checkedId) -> sortPersonList(checkedId));
 
         personListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -80,34 +91,6 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void parseJson(String jsonString) {
-        try {
-            JSONArray jsonArray = new JSONArray(jsonString);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                // Parse status as a Set<String> from a comma-separated string
-                Set<String> statusSet = new HashSet<>();
-                String statusString = jsonObject.getString("status");
-                String[] statuses = statusString.split(",");
-                for (String status : statuses) {
-                    statusSet.add(status.trim().toLowerCase()); // Trim spaces if any
-                }
-
-                Person person = new Person(
-                        jsonObject.getString("first_name"),
-                        jsonObject.getString("last_name"),
-                        jsonObject.getString("photo_path"),
-                        jsonObject.getString("address"),
-                        statusSet
-                );
-                originalPersonList.add(person);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void filterList() {
         String query = searchEditText.getText().toString().toLowerCase();
         filteredPersonList.clear(); // Clear the filtered list
@@ -115,16 +98,41 @@ public class HomeActivity extends AppCompatActivity {
         // Check if the query is null or empty
         if (query != null && !query.isEmpty()) {
             for (Person person : originalPersonList) {
-                if (person.getFullInfo().toLowerCase().contains(query.toLowerCase())) {
+                if (person.getFullInfo().toLowerCase().contains(query)) {
                     filteredPersonList.add(person);
                 }
             }
-            personAdapter = new PersonAdapter(this, filteredPersonList);
+            personAdapter = new PersonAdapter(this, filteredPersonList, webAccess); // Pass webAccess here
         } else {
             // Reset to original list if the query is empty
             filteredPersonList.addAll(originalPersonList);
-            personAdapter = new PersonAdapter(this, originalPersonList);
+            personAdapter = new PersonAdapter(this, originalPersonList, webAccess); // Pass webAccess here
         }
         personListView.setAdapter(personAdapter);
+    }
+
+
+    private void sortPersonList(int checkedId) {
+        Comparator<Person> comparator = null;
+
+        if (checkedId == R.id.sortByFirstName) {
+            comparator = Comparator.comparing(Person::getFirstName);
+        } else if (checkedId == R.id.sortByLastName) {
+            comparator = Comparator.comparing(Person::getLastName);
+        } else if (checkedId == R.id.sortByAddress) {
+            comparator = Comparator.comparing(person -> getUnitNum(person.getAddress()));
+        }
+
+        if (comparator != null) {
+            Collections.sort(filteredPersonList, comparator);
+            personAdapter = new PersonAdapter(this, filteredPersonList, webAccess);
+            personListView.setAdapter(personAdapter);
+        }
+    }
+
+    public String getUnitNum(String input) {
+        // Split the input string by whitespace
+        String[] parts = input.split("\\s+");
+        return parts.length > 0 ? parts[0] : "";
     }
 }
