@@ -1,8 +1,12 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Button;
@@ -67,6 +71,24 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         sortRadioGroup.setOnCheckedChangeListener((group, checkedId) -> sortPersonList(checkedId));
+
+        personListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Starting new intent
+                Intent in = new Intent(getApplicationContext(), DetailActivity.class);
+                in.putExtra("KEY_POSITION", position);
+                if (filteredPersonList.size() > 0)
+                {
+                    in.putParcelableArrayListExtra("KEY_PERSON_LIST", (ArrayList<? extends Parcelable>) filteredPersonList);
+                }
+                else
+                {
+                    in.putParcelableArrayListExtra("KEY_PERSON_LIST", (ArrayList<? extends Parcelable>) originalPersonList);
+                }
+                startActivity(in);
+            }
+        });
     }
 
     private void filterList() {
@@ -88,6 +110,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         personListView.setAdapter(personAdapter);
     }
+
 
     private void sortPersonList(int checkedId) {
         Comparator<Person> comparator = null;
