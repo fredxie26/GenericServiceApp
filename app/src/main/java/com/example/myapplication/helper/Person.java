@@ -5,7 +5,9 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Person implements Parcelable {
@@ -31,6 +33,11 @@ public class Person implements Parcelable {
         lastName = in.readString();
         photoPath = in.readString();
         address = in.readString();
+
+        // Read statuses as a List and convert it to a Set
+        List<String> statusList = in.createStringArrayList();
+        statuses = new HashSet<>(statusList != null ? statusList : new ArrayList<>());
+
     }
 
     public static final Creator<Person> CREATOR = new Creator<Person>() {
@@ -97,5 +104,8 @@ public class Person implements Parcelable {
         dest.writeString(lastName);
         dest.writeString(photoPath);
         dest.writeString(address);
+
+        // Convert statuses to a List and write it to the Parcel
+        dest.writeStringList(new ArrayList<>(statuses));
     }
 }
