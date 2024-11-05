@@ -1,9 +1,14 @@
 package com.example.myapplication.helper;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
-public class Person {
+public class Person implements Parcelable {
     private String firstName;
     private String lastName;
     private String photoPath;
@@ -18,10 +23,37 @@ public class Person {
         this.statuses = statuses;
     }
 
+    protected Person(Parcel in) {
+        firstName = in.readString();
+        lastName = in.readString();
+        photoPath = in.readString();
+        address = in.readString();
+    }
+
+    public static final Creator<Person> CREATOR = new Creator<Person>() {
+        @Override
+        public Person createFromParcel(Parcel in) {
+            return new Person(in);
+        }
+
+        @Override
+        public Person[] newArray(int size) {
+            return new Person[size];
+        }
+    };
+
     public String getFullInfo() {
         return "Name: " + firstName + " " + lastName + "\n" +
                 "Address: " + address + "\n" +
                 "Status: " + String.join(", ", statuses);
+    }
+
+    public String getName() {
+        return "Name: " + firstName + " " + lastName;
+    }
+
+    public String getAddress() {
+        return "Address: " + address;
     }
 
     public Set<String> getStatuses() {
@@ -34,5 +66,18 @@ public class Person {
 
     public void removeStatus(String status) {
         statuses.remove(status);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(firstName);
+        dest.writeString(lastName);
+        dest.writeString(photoPath);
+        dest.writeString(address);
     }
 }
