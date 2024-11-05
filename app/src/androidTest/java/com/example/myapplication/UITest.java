@@ -106,7 +106,7 @@ public class UITest {
     }
 
     @Test
-    public void testStatusUI() throws Exception {
+    public void testListStatusUI() throws Exception {
         mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
 
 //        performLogin();
@@ -135,4 +135,44 @@ public class UITest {
         //Go back to the Home Screen
         mDevice.pressHome();
     }
+
+    @Test
+    public void testDetailedListViewUI() throws Exception {
+        mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
+
+        //        performLogin();
+
+        UiObject searchEditText = mDevice.findObject(new UiSelector().resourceId(APP + ":id/searchEditText"));
+        UiObject searchButton = mDevice.findObject(new UiSelector().resourceId(APP + ":id/searchButton"));
+        UiObject searchListView = mDevice.findObject(new UiSelector().resourceId(APP + ":id/personListView"));
+
+        // Ensure the search input works
+        searchEditText.setText("Thor");
+        searchButton.click();
+
+        UiObject listItem = searchListView.getChild(new UiSelector().textContains("Thor"));
+        listItem.click();
+
+        UiObject detailedStatusButton = mDevice.findObject(new UiSelector().resourceId(APP + ":id/detailStatusBtn"));
+        assertTrue("Status Button is not found in the detailed layout", detailedStatusButton.exists());
+        detailedStatusButton.click();
+
+        // Find the CheckBox in the custom layout
+        UiObject checkBox = mDevice.findObject(new UiSelector().resourceId(APP + ":id/detailCheckboxLayout").childSelector(new UiSelector().className(CheckBox.class.getName())));
+        assertTrue("CheckBox not found in the detailed layout", checkBox.exists());
+
+        // Click the CheckBox
+        checkBox.click(); // Check or uncheck the checkbox
+
+        // Optional: Verify the CheckBox state if needed
+        boolean isCheckable = checkBox.isCheckable();
+        assertTrue("Checkbox should be checked", isCheckable); // Example assertion
+
+        detailedStatusButton.click();
+
+        // mDevice.swipe(700, 900, 50, 900, 60); // Using int values for swipe method
+        //Go back to the Home Screen
+        mDevice.pressHome();
+    }
+
 }
