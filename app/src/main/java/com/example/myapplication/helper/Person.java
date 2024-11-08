@@ -69,8 +69,7 @@ public class Person implements Parcelable {
 
     public String getFullInfo() {
         return "Name: " + firstName + " " + lastName + "\n" +
-                "Address: " + address + "\n" +
-                "Status: " + String.join(", ", statuses);
+                "Address: " + address + "\n";
     }
 
     public String getName() {
