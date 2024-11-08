@@ -55,7 +55,7 @@ public class UITest {
         }
     }
 
-/*    @Test
+    @Test
     public void testLoginUI() throws Exception {
         mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
 
@@ -74,13 +74,13 @@ public class UITest {
         passwordEditText.setText("admin");
         assertEquals("•••••", passwordEditText.getText());
 
-    }*/
+    }
 
     @Test
     public void testSearchListViewUI() throws Exception {
         mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
 
-//        performLogin();
+        performLogin();
 
         UiObject searchEditText = mDevice.findObject(new UiSelector().resourceId(APP + ":id/searchEditText"));
         UiObject searchButton = mDevice.findObject(new UiSelector().resourceId(APP + ":id/searchButton"));
@@ -109,7 +109,7 @@ public class UITest {
     public void testListStatusUI() throws Exception {
         mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
 
-//        performLogin();
+        performLogin();
 
         UiObject listView = mDevice.findObject(new UiSelector().resourceId(APP + ":id/personListView"));
         assertTrue("ListView not found", listView.exists());
@@ -140,7 +140,7 @@ public class UITest {
     public void testDetailedListViewUI() throws Exception {
         mDevice.wait(Until.hasObject(By.pkg(APP).depth(0)), LAUNCH_TIMEOUT);
 
-        //        performLogin();
+        performLogin();
 
         UiObject searchEditText = mDevice.findObject(new UiSelector().resourceId(APP + ":id/searchEditText"));
         UiObject searchButton = mDevice.findObject(new UiSelector().resourceId(APP + ":id/searchButton"));

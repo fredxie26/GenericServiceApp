@@ -178,7 +178,7 @@ public class WebAccess {
                 HttpURLConnection conn = null;
                 OutputStream os = null;
                 try {
-                    URL url = new URL(WebAccess.this.url); // Update with your URL
+                    URL url = new URL(WebAccess.this.url);
                     conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("Content-Type", "application/json");
