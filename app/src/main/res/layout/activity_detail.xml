@@ -14,7 +14,7 @@
 
 
     <TextView
-        android:id="@+id/detailName"
+        android:id="@+id/detailPersonInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -22,20 +22,11 @@
         android:layout_below="@id/detailImage"
         android:textSize="30sp" />
 
-    <TextView
-        android:id="@+id/detailAddress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/detailName"
-        android:textSize="30sp"
-        android:layout_marginStart="16dp"
-        android:layout_gravity="center_vertical" />
-
     <Button
         android:id="@+id/detailStatusBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/detailAddress"
+        android:layout_below="@+id/detailPersonInfo"
         android:text="Status" />
 
     <LinearLayout

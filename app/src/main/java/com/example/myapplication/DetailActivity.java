@@ -28,8 +28,7 @@ public class DetailActivity extends Activity {
     ArrayList<Person> data;
     int position;
     private ImageView picture;
-    private TextView name;
-    private TextView address;
+    private TextView personInfoView;
     private LinearLayout checkboxLayout;
     private Button statusButton;
     private final String[] checkboxOptions = {"active", "inactive", "pending"};
@@ -40,8 +39,7 @@ public class DetailActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         picture = findViewById(R.id.detailImage);
-        name = findViewById(R.id.detailName);
-        address = findViewById(R.id.detailAddress);
+        personInfoView = findViewById(R.id.detailPersonInfo);
         checkboxLayout = findViewById(R.id.detailCheckboxLayout);
         statusButton = findViewById(R.id.detailStatusBtn);
 
@@ -68,24 +66,7 @@ public class DetailActivity extends Activity {
             }
         });
 
-        name.setOnTouchListener(new OnSwipeTouchListener(DetailActivity.this) {
-            public void onSwipeRight() {
-                if (position < data.size())
-                    position++;
-                else
-                    position = 0;
-                changePerson(position);
-            }
-            public void onSwipeLeft() {
-                if (position > 0)
-                    position--;
-                else
-                    position = data.size();
-                changePerson(position);
-            }
-        });
-
-        address.setOnTouchListener(new OnSwipeTouchListener(DetailActivity.this) {
+        personInfoView.setOnTouchListener(new OnSwipeTouchListener(DetailActivity.this) {
             public void onSwipeRight() {
                 if (position < data.size())
                     position++;
@@ -120,10 +101,8 @@ public class DetailActivity extends Activity {
             // Optionally set a placeholder image if the bitmap is null
             picture.setImageResource(R.drawable.cat); // Replace with your placeholder image
         }
-        name = findViewById(R.id.detailName);
-        address = findViewById(R.id.detailAddress);
-        name.setText(person.getName());
-        address.setText(person.getAddress());
+        personInfoView = findViewById(R.id.detailPersonInfo);
+        personInfoView.setText(person.getFullInfo());
     }
 
 
@@ -161,7 +140,7 @@ public class DetailActivity extends Activity {
             } else {
                 person.removeStatus(option);
             }
-            name.setText(person.getFullInfo()); // Update the displayed person info if necessary
+            personInfoView.setText(person.getFullInfo()); // Update the displayed person info if necessary
         });
 
         return checkBox;
