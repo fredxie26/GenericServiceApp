@@ -20,8 +20,6 @@ public class MainActivity extends AppCompatActivity {
         EditText password = findViewById(R.id.password);
         Button loginButton = findViewById(R.id.login_button);
 
-        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-        startActivity(intent);/*
         loginButton.setOnClickListener(v -> {
             String user = username.getText().toString();
             String pass = password.getText().toString();
@@ -36,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 // Show error message
                 Toast.makeText(MainActivity.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
             }
-        })*/;
+        });
     }
 
     private boolean authenticate(String username, String password) {
